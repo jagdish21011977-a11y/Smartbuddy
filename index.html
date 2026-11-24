@@ -1,0 +1,132 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SmartBuddy - Free Smart Tools</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#090b16;color:#f5f5ff;font-family:Arial,sans-serif}
+header{padding:20px 7%;display:flex;justify-content:space-between;align-items:center;background:#111629;border-bottom:1px solid #29314b}
+.logo{font-size:25px;font-weight:bold;color:#b99aff}
+button{cursor:pointer;border:0;border-radius:10px;padding:11px 16px;background:#8055ed;color:white;font-weight:bold}
+.hero{text-align:center;padding:65px 20px 35px}
+h1{font-size:clamp(35px,6vw,58px);margin:10px}
+h1 span{color:#a78bfa}
+p{color:#aab2cc;line-height:1.6}
+.search{width:min(550px,90%);padding:15px;background:#151c31;border:1px solid #39425f;border-radius:12px;color:white;margin:15px}
+main{max-width:1100px;margin:auto;padding:20px}
+.filters{display:flex;gap:8px;flex-wrap:wrap;margin:20px 0}
+.filters button{background:#202943}
+.filters button.active{background:#8055ed}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:15px}
+.card,.workspace{background:#141b30;border:1px solid #2b3552;border-radius:17px;padding:20px}
+.card{cursor:pointer;transition:.2s}
+.card:hover{transform:translateY(-4px);border-color:#956cff}
+.icon{font-size:28px}
+.card h3{margin-bottom:5px}
+.workspace{display:none;margin:25px 0}
+.workspace.show{display:block}
+input,textarea,select{width:100%;padding:13px;margin:7px 0 14px;background:#090f20;color:white;border:1px solid #39425f;border-radius:9px}
+textarea{min-height:100px}
+label{display:block;color:#cbd2e8;font-size:14px}
+.result{white-space:pre-wrap;overflow-wrap:anywhere;background:#090f20;padding:15px;border-radius:10px;margin-top:15px}
+footer{text-align:center;padding:35px;color:#929bb6}
+</style>
+</head>
+<body>
+<header>
+<div class="logo">✦ SmartBuddy</div>
+<button onclick="language()">हिंदी / English</button>
+</header>
+
+<section class="hero">
+<p>✦ FREE EVERYDAY SMART TOOLS</p>
+<h1 id="heading">Make everyday tasks<br><span>ridiculously easy.</span></h1>
+<p id="intro">Free tools for students, creators and everyone.</p>
+<input class="search" id="search" placeholder="Search tools..." oninput="render()">
+</section>
+
+<main>
+<h2 id="explore">Explore All Tools</h2>
+<div class="filters" id="filters"></div>
+<div class="grid" id="grid"></div>
+
+<section class="workspace" id="workspace">
+<button onclick="closeTool()">✕ Close</button>
+<h2 id="toolTitle"></h2>
+<div id="toolBody"></div>
+</section>
+</main>
+
+<footer>✦ SmartBuddy · One Website. Smart Solutions.</footer>
+
+<script>
+let hindi=false,category="All",current="";
+const tools=[
+["percent","🧮","Percentage Calculator","प्रतिशत कैलकुलेटर","Everyday"],
+["discount","🏷️","Discount Calculator","डिस्काउंट कैलकुलेटर","Everyday"],
+["word","✍️","Word Counter","वर्ड काउंटर","Creator"],
+["case","🔠","Text Case Converter","टेक्स्ट कन्वर्टर","Creator"],
+["password","🔐","Password Generator","पासवर्ड जनरेटर","Everyday"],
+["caption","💬","Caption Ideas","कैप्शन आइडिया","Creator"],
+["study","📚","Study Planner","स्टडी प्लानर","Student"],
+["calc","➗","Quick Calculator","क्विक कैलकुलेटर","Everyday"],
+["resume","📄","Resume Builder","रिज्यूमे बिल्डर","Career"],
+["goal","🎯","Goal Tracker","गोल ट्रैकर","Student"]
+];
+const categories=["All","Student","Creator","Career","Everyday"];
+function name(t){return hindi?t[3]:t[2]}
+function language(){
+ hindi=!hindi;
+ document.getElementById("heading").innerHTML=hindi?"रोज़ के काम बनाएं<br><span>बेहद आसान।</span>":"Make everyday tasks<br><span>ridiculously easy.</span>";
+ document.getElementById("intro").textContent=hindi?"स्टूडेंट्स और क्रिएटर्स के लिए मुफ़्त टूल्स।":"Free tools for students, creators and everyone.";
+ document.getElementById("explore").textContent=hindi?"सभी टूल्स देखें":"Explore All Tools";
+ document.getElementById("search").placeholder=hindi?"टूल खोजें...":"Search tools...";
+ render();
+ if(current)openTool(current);
+}
+function render(){
+ document.getElementById("filters").innerHTML=categories.map(c=>`<button class="${category===c?'active':''}" onclick="category='${c}';render()">${c}</button>`).join("");
+ let q=document.getElementById("search").value.toLowerCase();
+ let list=tools.filter(t=>(category==="All"||t[4]===category)&&t.join(" ").toLowerCase().includes(q));
+ document.getElementById("grid").innerHTML=list.map(t=>`<article class="card" onclick="openTool('${t[0]}')"><div class="icon">${t[1]}</div><h3>${name(t)}</h3><p>${t[4]} · ${hindi?"मुफ़्त टूल":"Free tool"}</p></article>`).join("");
+}
+function field(label,id,placeholder="",type="text"){
+ return `<label>${label}<input id="${id}" type="${type}" placeholder="${placeholder}"></label>`;
+}
+function area(label,id){
+ return `<label>${label}<textarea id="${id}"></textarea></label>`;
+}
+function result(){return `<div class="result" id="result" hidden></div>`}
+function show(s){let r=document.getElementById("result");r.hidden=false;r.textContent=s}
+function openTool(id){
+ current=id;
+ let t=tools.find(x=>x[0]===id);
+ document.getElementById("toolTitle").textContent=name(t);
+ let b="";
+ if(id==="percent")b=field("Your value","a","45","number")+field("Total value","b","60","number")+`<button onclick="let a=+document.getElementById('a').value,b=+document.getElementById('b').value;if(b)show((a/b*100).toFixed(2)+'%');else alert('Enter a total')">Calculate</button>`+result();
+ if(id==="discount")b=field("Original price ₹","a","","number")+field("Discount %","b","","number")+`<button onclick="let a=+document.getElementById('a').value,b=+document.getElementById('b').value;show('Final price: ₹'+(a*(1-b/100)).toFixed(2)+'\\nSavings: ₹'+(a*b/100).toFixed(2))">Calculate</button>`+result();
+ if(id==="word")b=area("Enter your text","txt")+`<button onclick="let s=document.getElementById('txt').value;show('Words: '+(s.trim()?s.trim().split(/\\s+/).length:0)+'\\nCharacters: '+s.length+'\\nReading time: '+Math.max(1,Math.ceil(s.trim().split(/\\s+/).length/200))+' min')">Count</button>`+result();
+ if(id==="case")b=area("Enter text","txt")+`<button onclick="show(document.getElementById('txt').value.toUpperCase())">UPPERCASE</button> <button onclick="show(document.getElementById('txt').value.toLowerCase())">lowercase</button> <button onclick="show(document.getElementById('txt').value.toLowerCase().replace(/\\b\\w/g,c=>c.toUpperCase()))">Title Case</button>`+result();
+ if(id==="password")b=field("Password length (8-64)","len","16","number")+`<button onclick="let n=Math.max(8,Math.min(64,+document.getElementById('len').value||16)),c='ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789!@#$%&*',a=new Uint32Array(n);crypto.getRandomValues(a);show(Array.from(a,x=>c[x%c.length]).join(''))">Generate Password</button>`+result();
+ if(id==="caption")b=`<label>Choose style<select id="style"><option value="cool">Cool</option><option value="fun">Funny</option><option value="mot">Motivational</option></select></label><button onclick="let a={cool:['Less noise, more focus ✨','Creating my own lane.'],fun:['Currently buffering 😂','Professional overthinker.'],mot:['Progress over perfection.','Small steps, big dreams 🚀']};let v=document.getElementById('style').value;show(a[v][Math.floor(Math.random()*2)])">Generate Caption</button>`+result();
+ if(id==="study")b=field("Subject / task","task")+field("Minutes","mins","45","number")+`<button onclick="let a=JSON.parse(localStorage.getItem('sbplan')||'[]');a.push(document.getElementById('task').value+' — '+document.getElementById('mins').value+' min');localStorage.setItem('sbplan',JSON.stringify(a));drawStudy()">Add task</button><button onclick="localStorage.removeItem('sbplan');drawStudy()">Clear</button><div class="result" id="studyList"></div>`;
+ if(id==="calc")b=field("First number","a","","number")+field("Second number","b","","number")+`<button onclick="let a=+document.getElementById('a').value,b=+document.getElementById('b').value;show('Add: '+(a+b)+'\\nSubtract: '+(a-b)+'\\nMultiply: '+(a*b)+'\\nDivide: '+(b?a/b:'Cannot divide by zero'))">Calculate</button>`+result();
+ if(id==="resume")b=field("Full name","n")+field("Email / phone","contact")+field("Education","edu")+field("Skills","skills")+area("Profile / objective","profile")+`<button onclick="let v=['n','contact','profile','edu','skills'].map(x=>document.getElementById(x).value);let w=window.open('','_blank');w.document.write('<h1>'+v[0]+'</h1><p>'+v[1]+'</p><h2>Profile</h2><p>'+v[2]+'</p><h2>Education</h2><p>'+v[3]+'</p><h2>Skills</h2><p>'+v[4]+'</p>');w.print()">Print / Save PDF</button>`;
+ if(id==="goal")b=field("Your goal","goal")+field("Target days","days","","number")+`<button onclick="localStorage.setItem('sbgoal',document.getElementById('goal').value);show('Goal saved: '+localStorage.getItem('sbgoal'))">Save Goal</button>`+result();
+ document.getElementById("toolBody").innerHTML=b;
+ document.getElementById("workspace").classList.add("show");
+ document.getElementById("workspace").scrollIntoView({behavior:"smooth"});
+ if(id==="study")drawStudy();
+}
+function drawStudy(){
+ let a=JSON.parse(localStorage.getItem('sbplan')||'[]');
+ document.getElementById("studyList").textContent=a.length?a.join("\n"):"Your plan is empty.";
+}
+function closeTool(){document.getElementById("workspace").classList.remove("show");current=""}
+render();
+</script>
+</body>
+</html>
