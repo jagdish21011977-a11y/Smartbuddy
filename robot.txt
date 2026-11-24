@@ -1,0 +1,5 @@
+
+User-agent: *
+Allow: /
+
+Sitemap: https://smartbuddy-3as.pages.dev/sitemap.xml
